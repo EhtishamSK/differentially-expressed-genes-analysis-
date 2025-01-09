@@ -1,4 +1,4 @@
-Gene Expression Analysis in Chile Pepper Cultivars for Disease Resistance
+Gene Expression Analysis in Chile Pepper Cultivars for Disease Resistance.
 This project investigates gene expression variations between two chile pepper cultivars—disease-resistant and susceptible—using root samples collected 24 hours post-inoculation. The analysis was conducted between March and April 2024, leveraging Linux and R for data processing and bioinformatics workflows.
 
 Key Steps:
