@@ -1,0 +1,389 @@
+#This project will explore gene expression variation between two chile pepper cultivars for disease resistant from root samples after 24 hours of inoculation 
+
+#The expression analyses was performed between March and April, 2024. The Analyses was performed using Linux and R 
+
+#1 create directories 
+mkdir final_project 
+mkdir pepper_genome 
+mkdir resistant_72
+mkdir susceptible_72 
+
+
+#2 Obtaining the pepper genome 
+wget https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-57/fasta/capsicum_annuum/dna/Capsicum_annuum.ASM51225v2.dna.toplevel.fa.gz
+
+#3 Obtaining the Annotations for the genome 
+wget https://ftp.ebi.ac.uk/ensemblgenomes/pub/release-57/plants/gtf/capsicum_annuum/Capsicum_annuum.ASM51225v2.57.chr.gtf.gz
+
+#4 Obtaining the RNA-seq data 
+I cant download the RNA seq data from company's web link because it does not provide the flexibility of using wget command. Therefore, I downloaded the data in windows and transfer the files using fileZilla.
+#Black = Replication 1 ; Green = Replication 2 ; Red = Replication 3  
+
+#5 Unzip the files for resistant and susceptible  
+gzip -d
+
+#6 Checking the forward and reverse reads for resistant24, repeat the command for suscesptible24 
+
+28156508 wc -l 24-root-resistent-black_S23_L001_R1_001.fastq
+28156508 wc -l 24-root-resistent-black_S23_L001_R2_001.fastq
+34092008 wc -l 24-root-resistent-green_S22_L001_R1_001.fastq
+34092008 wc -l 24-root-resistent-green_S22_L001_R2_001.fastq
+36193716 wc -l 24-root-resistent-red_S21_L001_R1_001.fastq
+36193716 wc -l 24-root-resistent-red_S21_L001_R2_001.fastq
+
+
+31395704 24-root-susceptible-black_S8_L001_R1_001.fastq
+31395704 24-root-susceptible-black_S8_L001_R2_001.fastq
+40369180 24-root-susceptible-green_S7_L001_R1_001.fastq
+40369180 24-root-susceptible-green_S7_L001_R2_001.fastq
+48076172 24-root-susceptible-red_S6_L001_R1_001.fastq
+48076172 24-root-susceptible-red_S6_L001_R2_001.fastq
+
+#7 Run the FASTQC for quality check. create output dir FastQC_ouput for resistant and sucessptible 
+
+mkdir FastQC_ouput
+
+#For resistant24 black & repeate the command for red and green - same for the suscesptible sample 
+fastqc 24-root-resistent-black_S30_L001_R1_001.fastq -o FastQC_ouput/
+fastqc 24-root-resistent-black_S30_L001_R2_001.fastq -o FastQC_ouput/
+
+
+#8 Trim the RNA-Seq Data for for resistant and susceptible
+
+#For resistant24  - repeat the trim command for susceptible24 - all 3 reps (black, green and red)
+
+trimmomatic    PE  -phred33 24-root-resistent-black_S23_L001_R1_001.fastq 24-root-resistent-black_S23_L001_R2_001.fastq  24-root-resistent-black_S23_L001_R1_001_paired.fq 24-root-resistent-black_S23_L001_R1_001_unpaired.fq  24-root-resistent-black_S23_L001_R2_001_paired.fq 24-root-resistent-black_S23_L001_R2_001_unpaired.fq ILLUMINACLIP:/home/cdb3ny/TruSeq3-PE.fa:2:30:10   LEADING:3   TRAILING:3   SLIDINGWINDOW:4:15   MINLEN:80
+#Output
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Read Pairs: 7039127 Both Surviving: 6541429 (92.93%) Forward Only Surviving: 275086 (3.91%) Reverse Only Surviving: 93730 (1.33%) Dropped: 128882 (1.83%)
+TrimmomaticPE: Completed successfully
+
+
+trimmomatic    PE  -phred33 24-root-resistent-green_S22_L001_R1_001.fastq 24-root-resistent-green_S22_L001_R2_001.fastq  24-root-resistent-green_S22_L001_R1_001_paired.fq 24-root-resistent-green_S22_L001_R1_001_unpaired.fq  24-root-resistent-green_S22_L001_R2_001_paired.fq 24-root-resistent-green_S22_L001_R2_001_unpaired.fq ILLUMINACLIP:/home/cdb3ny/TruSeq3-PE.fa:2:30:10   LEADING:3   TRAILING:3   SLIDINGWINDOW:4:15   MINLEN:80
+#Output
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Read Pairs: 8523002 Both Surviving: 7933881 (93.09%) Forward Only Surviving: 309321 (3.63%) Reverse Only Surviv                                                                                                                        ing: 107281 (1.26%) Dropped: 172519 (2.02%)
+TrimmomaticPE: Completed successfully
+
+
+trimmomatic    PE  -phred33 24-root-resistent-red_S21_L001_R1_001.fastq 24-root-resistent-red_S21_L001_R2_001.fastq  24-root-resistent-red_S21_L001_R1_001_paired.fq 24-root-resistent-red_S21_L001_R1_001_unpaired.fq  24-root-resistent-red_S21_L001_R2_001_paired.fq 24-root-resistent-red_S21_L001_R2_001_unpaired.fq ILLUMINACLIP:/home/cdb3ny/TruSeq3-PE.fa:2:30:10   LEADING:3   TRAILING:3   SLIDINGWINDOW:4:15   MINLEN:80
+#Output
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Read Pairs: 9048429 Both Surviving: 8494657 (93.88%) Forward Only Surviving: 270143 (2.99%) Reverse Only Surviving: 127033 (1.40%) Dropped: 156596 (1.73%)
+TrimmomaticPE: Completed successfully
+
+# Trim command with output for susceptible24 
+
+TrimmomaticPE: Started with arguments:
+ -phred33 24-root-susceptible-black_S8_L001_R1_001.fastq 24-root-susceptible-black_S8_L001_R2_001.fastq 24-root-susceptible-black_S8_L001_R1_001_paired.fq 24-root-susceptible-black_S8_L001_R1_001_unpaired.fq 24-root-susceptible-black_S8_L001_R2_001_paired.fq 24-root-susceptible-black_S8_L001_R2_001_unpaired.fq ILLUMINACLIP:/home/cdb3ny/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:80
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Read Pairs: 7848926 Both Surviving: 7355275 (93.71%) Forward Only Surviving: 289687 (3.69%) Reverse Only Surviving: 103723 (1.32%) Dropped: 100241 (1.28%)
+TrimmomaticPE: Completed successfully
+
+TrimmomaticPE: Started with arguments:
+ -phred33 24-root-susceptible-green_S7_L001_R1_001.fastq 24-root-susceptible-green_S7_L001_R2_001.fastq 24-root-susceptible-green_S7_L001_R1_001_paired.fq 24-root-susceptible-green_S7_L001_R1_001_unpaired.fq 24-root-susceptible-green_S7_L001_R2_001_paired.fq 24-root-susceptible-green_S7_L001_R2_001_unpaired.fq ILLUMINACLIP:/home/cdb3ny/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:80
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Read Pairs: 10092295 Both Surviving: 9428676 (93.42%) Forward Only Surviving: 330250 (3.27%) Reverse Only Surviving: 148760 (1.47%) Dropped: 184609 (1.83%)
+TrimmomaticPE: Completed successfully
+
+  
+TrimmomaticPE: Started with arguments:
+ -phred33 24-root-susceptible-red_S6_L001_R1_001.fastq 24-root-susceptible-red_S6_L001_R2_001.fastq 24-root-susceptible-red_S6_L001_R1_001_paired.fq 24-root-susceptible-red_S6_L001_R1_001_unpaired.fq 24-root-susceptible-red_S6_L001_R2_001_paired.fq 24-root-susceptible-red_S6_L001_R2_001_unpaired.fq ILLUMINACLIP:/home/cdb3ny/TruSeq3-PE.fa:2:30:10 LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 MINLEN:80
+Using PrefixPair: 'TACACTCTTTCCCTACACGACGCTCTTCCGATCT' and 'GTGACTGGAGTTCAGACGTGTGCTCTTCCGATCT'
+ILLUMINACLIP: Using 1 prefix pairs, 0 forward/reverse sequences, 0 forward only sequences, 0 reverse only sequences
+Input Read Pairs: 12019043 Both Surviving: 11191289 (93.11%) Forward Only Surviving: 444191 (3.70%) Reverse Only Surviving: 156476 (1.30%) Dropped: 227087 (1.89%)
+TrimmomaticPE: Completed successfully
+
+
+#9 Generate the index of the genome. The genome was larger and it required extra RAM to create index. I adjusted command accordingly. 
+nohup STAR  --runMode genomeGenerate --runThreadN 1 --genomeDir . --genomeFastaFiles Capsicum_annuum.ASM51225v2.dna.toplevel.fa --limitGenomeGenerateRAM 32958142048
+
+#Output of the STAR command 
+Nov 11 08:27:50 ..... started STAR run
+Nov 11 08:27:50 ... starting to generate Genome files
+Nov 11 08:30:02 ... starting to sort Suffix Array. This may take a long time...
+Nov 11 08:31:01 ... sorting Suffix Array chunks and saving them to disk...
+Nov 11 11:08:28 ... loading chunks from disk, packing SA...
+Nov 11 11:13:46 ... finished generating suffix array
+Nov 11 11:13:46 ... generating Suffix Array index
+Nov 11 11:19:54 ... completed Suffix Array index
+Nov 11 11:19:54 ... writing Genome to disk ...
+Nov 11 11:20:10 ... writing Suffix Array to disk ...
+Nov 11 11:22:12 ... writing SAindex to disk
+Nov 11 11:22:23 ..... finished successfully
+
+
+#10 Aligning the raw transcriptome data (the illumina PE data)
+
+# I tried two slightly different commands to run for more than 3 replicates. The STAR manual mentioned of doing multiple jobs.
+# For this analyses, I have three replciates. But I am get segmentation error while doing multiple jobs in a single command. 
+# The error may be due to memory issues, not sure! Therefore, for this analyses I am doing it one by one. 
+
+# STAR command for 3 replicates with error
+STAR --runMode alignReads --runThreadN 8 --genomeDir /media/Scratch8TB/CLG2023/ehtisham/special_topic/pepper_genome --readFilesIn resistant24/24-root-resistent-black_S23_L001_R1_001_paired.fq resistant24/24-root-resistent-black_S23_L001_R2_001_paired.fq resistant24/24-root-resistent-green_S22_L001_R1_001_paired.fq resistant24/24-root-resistent-green_S22_L001_R2_001_paired.fq resistant24/24-root-resistent-red_S21_L001_R1_001_paired.fq resistant24/24-root-resistent-red_S21_L001_R2_001_paired.fq --outSAMtype BAM SortedByCoordinate --outFileNamePrefix resistant24 --limitBAMsortRAM 32958142048 --limitIObufferSize 2000000000
+Segmentation fault (core dumped)
+
+#A different STAR command but still it gave the same error 
+STAR --runMode alignReads --runThreadN 8 --genomeDir /media/Scratch8TB/CLG2023/ehtisham/special_topic/pepper_genome --readFilesIn resistant24/24-root-resistent-black_S23_L001_R1_001_paired.fq resistant24/24-root-resistent-green_S22_L001_R1_001_paired.fq resistant24/24-root-resistent-red_S21_L001_R1_001_paired.fq resistant24/24-root-resistent-black_S23_L001_R2_001_paired.fq resistant24/24-root-resistent-green_S22_L001_R2_001_paired.fq resistant24/24-root-resistent-red_S21_L001_R2_001_paired.fq --outSAMtype BAM SortedByCoordinate --outSAMattrRGline ID:resistant_black24 ID:resistant_green24 ID:resistant_red24
+Segmentation fault (core dumped)
+
+
+#Individual STAR commands for black (R1), green (R2) and red samples (R3) 
+
+#Black samples = R 1 
+STAR --runMode alignReads --runThreadN 8 --genomeDir /media/Scratch8TB/CLG2023/ehtisham/special_topic/pepper_genome --readFilesIn resistant24/24-root-resistent-black_S23_L001_R1_001_paired.fq resistant24/24-root-resistent-black_S23_L001_R2_001_paired.fq --outSAMtype BAM SortedByCoordinate --outFileNamePrefix resistant_black24
+
+/24-root-resistent-black_S23_L001_R2_001_paired.fq --outSAMtype BAM SortedByCoordinate --outFileNamePrefix resistant_black24
+        STAR version: 2.7.10a   compiled: 2022-01-14T18:50:00-05:00 :/home/dobin/data/STAR/STARcode/STAR.master/source
+Mar 31 16:38:50 ..... started STAR run
+Mar 31 16:38:50 ..... loading genome
+Mar 31 16:42:29 ..... started mapping
+Mar 31 16:46:21 ..... finished mapping
+Mar 31 16:46:26 ..... started sorting BAM
+Mar 31 16:46:45 ..... finished successfully
+
+#green sample = R2 
+STAR --runMode alignReads --runThreadN 8 --genomeDir /media/Scratch8TB/CLG2023/ehtisham/special_topic/pepper_genome --readFilesIn resistant24/24-root-resistent-green_S22_L001_R1_001_paired.fq resistant24/24-root-resistent-green_S22_L001_R2_001_paired.fq --outSAMtype BAM SortedByCoordinate --outFileNamePrefix resistant_green24
+
+ 
+/24-root-resistent-green_S22_L001_R2_001_paired.fq --outSAMtype BAM SortedByCoordinate --outFileNamePrefix resistant_green24
+        STAR version: 2.7.10a   compiled: 2022-01-14T18:50:00-05:00 :/home/dobin/data/STAR/STARcode/STAR.master/source
+Mar 31 17:10:15 ..... started STAR run
+Mar 31 17:10:15 ..... loading genome
+Mar 31 17:10:45 ..... started mapping
+Mar 31 17:15:39 ..... finished mapping
+Mar 31 17:15:43 ..... started sorting BAM
+Mar 31 17:16:07 ..... finished successfully
+
+#red sample = R3 
+STAR --runMode alignReads --runThreadN 8 --genomeDir /media/Scratch8TB/CLG2023/ehtisham/special_topic/pepper_genome --readFilesIn resistant24/24-root-resistent-red_S21_L001_R1_001_paired.fq resistant24/24-root-resistent-red_S21_L001_R2_001_paired.fq --outSAMtype BAM SortedByCoordinate --outFileNamePrefix resistant_red24
+
+        STAR version: 2.7.10a   compiled: 2022-01-14T18:50:00-05:00 :/home/dobin/data/STAR/STARcode/STAR.master/source
+Mar 31 17:21:28 ..... started STAR run
+Mar 31 17:21:28 ..... loading genome
+Mar 31 17:21:55 ..... started mapping
+Mar 31 17:26:13 ..... finished mapping
+Mar 31 17:26:18 ..... started sorting BAM
+Mar 31 17:26:47 ..... finished successfully
+
+#11 Repeat the commands for susceptible cultivar 
+
+
+
+#12 Covert SAM formate to the BAM formate, if you files are in SAM formate. We need binry formate to proceed with the expression analyses. The STAR command already specfied the outout in BAM format 
+
+# veiw the formate 
+samtools view output_black24.bam  | less
+# confirm the BAM formate 
+samtools view -H resistant_black24Aligned.sortedByCoord.out.bam
+
+resistant_black24Aligned.sortedByCoord.out.bam
+"resistant_black24Aligned.sortedByCoord.out.bam" may be a binary file.  See it anyway?
+
+
+#13 get the read counts
+
+#For resistant_ black24  
+featureCounts -a pepper_genome/Capsicum_annuum.ASM51225v2.57.chr.gtf -o black24_resistant_readcountoutput.txt -p -B -C -Q 10 -T 8 resistant_black24Aligned.sortedByCoord.out.bam
+
+*you will get a text file of readcounts. 
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file Capsicum_annuum.ASM51225v2.57.chr.gtf ...             ||
+||    Features : 143029                                                       ||
+||    Meta-features : 31600                                                   ||
+||    Chromosomes/contigs : 12                                                ||
+||                                                                            ||
+|| Process BAM file resistant_black24Aligned.sortedByCoord.out.bam...         ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 6540466                                              ||
+||    Successfully assigned alignments : 4180520 (63.9%)                      ||
+||    Running time : 0.18 minutes                                             ||
+||                                                                            ||
+||                                                                            ||
+|| Summary of counting results can be found in file "black24_resistant_readc  ||
+|| ountoutput.txt.summary"                                                    ||
+||                                                                            ||
+\\============================================================================//
+
+
+#For susceptible_ black24  
+featureCounts -a pepper_genome/Capsicum_annuum.ASM51225v2.57.chr.gtf -o black24_susceptible_readcountoutput.txt -p -B -C -Q 10 -T 8 susceptible_black24Aligned.sortedByCoord.out.bam
+
+
+//================================= Running ==================================\\
+||                                                                            ||
+|| Load annotation file Capsicum_annuum.ASM51225v2.57.chr.gtf ...             ||
+||    Features : 143029                                                       ||
+||    Meta-features : 31600                                                   ||
+||    Chromosomes/contigs : 12                                                ||
+||                                                                            ||
+|| Process BAM file susceptible_black24Aligned.sortedByCoord.out.bam...       ||
+||    Paired-end reads are included.                                          ||
+||    Total alignments : 7128574                                              ||
+||    Successfully assigned alignments : 4668524 (65.5%)                      ||
+||    Running time : 0.21 minutes                                             ||
+||                                                                            ||
+||                                                                            ||
+|| Summary of counting results can be found in file "black24_susceptible_rea  ||
+|| dcountoutput.txt.summary"                                                  ||
+||                                                                            ||
+\\============================================================================//
+
+#repeat the feature counts command for other samples 
+#counts for each sample is added to single excel sheet for further analyses, simple copy and paste   
+
+#14 use DeSeq2 package in R for differential expression 
+
+
+#Install Packages 
+if (!requireNamespace("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("DESeq2")
+BiocManager::install("apeglm")
+
+library(DESeq2)
+library(apeglm)
+install.packages("magrittr")
+library(magrittr)
+
+install.packages("dplyr")
+library(dplyr)
+install.packages("pheatmap")
+library(pheatmap)
+
+
+
+setwd("C:/Users/ehtis/OneDrive - New Mexico State University/SUNNY/Course Work/Fall 2023/BIO550/special topic")
+
+#load the count read matrix obtained from linux work 
+count_data <- read.csv("all_counts.csv", header = T , row.names = 1)
+col_data <- read.csv("info.csv", header = T)
+
+
+
+head(count_data)
+head(col_data)
+
+colnames(count_data)
+rownames(count_data)
+colnames(col_data)
+rownames(col_data)
+
+row.names(col_data) <-col_data$X
+col_data <- col_data["condition"]
+
+#make sure that column names in count data should matches to row names names in col data 
+all(colnames(count_data) %in% rownames(col_data))
+#Are they in the same odor 
+all(colnames(count_data) == rownames(col_data))
+
+# Create DESeqDataSet object
+dds <- DESeqDataSetFromMatrix(countData = count_data,
+                              colData = col_data,
+                              design = ~ condition)
+
+# we have also some lowly expressed genes, we get rid of it 
+keep <- rowSums(counts(dds)) >=10
+dds <- dds [keep, ]
+
+# set the factor level 
+dds$condition <- relevel(dds$condition, ref = "susceptible")
+
+#main DESeq program
+dds <- DESeq(dds)
+
+#save the results 
+results <- results(dds)
+summary(results)
+
+#export the normalzied read counts 
+normCounts <- counts(dds, normalized = TRUE)
+
+
+#results with alpah 0.01 
+results0.01 <- results(dds, alpha = 0.01)
+summary(results0.01)
+
+#rearrange for easy visualziation 
+reordordered <- results0.01[order(results0.01$padj),]
+write.csv(reordordered, "DEG.csv")
+
+#plot results 
+install.packages("ggplot2")
+# Detach DESeq2
+detach("package:DESeq2", unload = TRUE)
+install.packages("scales")
+library(ggplot2)
+
+plotMA(results0.01)
+
+# remove na 
+results0.01 <- na.omit(results0.01)
+
+# add significance column 
+results0.01$sig <- ifelse(results0.01$pvalue <= 0.05, "yes", "no")
+
+# Convert DESeqResults to a data frame
+results_df <- as.data.frame(results0.01)
+
+# Now you can use ggplot with the data frame for MA plot 
+ggplot(results_df, aes(x = log10(baseMean), y = log2FoldChange, color = sig)) +
+  geom_point()
+
+#pheatmap 
+
+#subset of the data 
+signifcant <- subset(results0.01, padj <= 0.05)
+#merge the with normalized counts 
+allsig <- merge(normCounts, signifcant, by = 0)
+
+sigCounts <- allsig[,2:7]
+row.names(sigCounts) <- allsig$Row.names
+
+pheatmap(sigCounts)
+
+pheatmap(log2(sigCounts +1), scale = 'row', show_rownames = F, treeheight_row = 0, 
+         treeheight_col = 0)
+
+#PCA plot 
+
+#variance stabilizing transformation 
+vsd <- vst(dds, blind = FALSE)
+# Plot PCA
+plotPCA(vsd, intgroup = "condition")
+
+#generate the distance matrix 
+sampleDists <- (t(assay(vsd)))
+sampleDistMatrix <- as.matrix(sampleDists)
+colnames(sampleDistMatrix)
+
+#set a color scheme 
+install.packages("RColorBrewer")
+library(RColorBrewer)
+
+#colors <- colorRampPalette(rev(brewer.pal(9,"Blues")))(225)
+
+# heat map of the log transformed normalized counts. we will use top 10 significantly expressed genes  
+top_hits <- results0.01[order(results0.01$padj), ][1:10, ]
+top_hits <- row.names(top_hits)
+top_hits
+
+rld <- rlog(dds,blind = FALSE)
+pheatmap(assay(rld)[top_hits,], cluster_rows = FALSE, show_rownames = TRUE, 
+         cluster_cols = FALSE) 
+
+annot_info <- as.data.frame(colData(dds)[,c('condition')])
+
+# Specify the color for the annotation bars
+annot_info$fill_color <- "red"
+
+pheatmap(assay(rld)[top_hits,], cluster_rows = FALSE, show_rownames = TRUE, 
+         cluster_cols = FALSE,annotation_col = annot_info)
